@@ -46,8 +46,9 @@ public class AvailabilityIntervalService {
     }
 
     public String toMessage(AvailabilityInterval availabilityInterval) {
-        return availabilityInterval.getStartDate().toLocalTime().toString() + "\t" +
-                availabilityInterval.getEndDate().toLocalTime().toString() + "\t" +
-                availabilityInterval.getAvailabilityLevel();
+        return String.format(Locale.US, "%s\t%s\t%.1f",
+                availabilityInterval.getStartDate().toLocalTime(),
+                availabilityInterval.getEndDate().toLocalTime(),
+                availabilityInterval.getAvailabilityLevel());
     }
 }
