@@ -7,8 +7,10 @@ import model.RequestResult;
 import util.IntervalCounterSingleton;
 import util.RequestCountSingleton;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 @Data
@@ -25,11 +27,13 @@ public class AvailabilityIntervalService {
     public Stream<AvailabilityInterval> process(Stream<String> lines) {
         IntervalCounterSingleton intervalCounterSingleton = IntervalCounterSingleton.getInstance();
         Set<AvailabilityInterval> availabilityIntervals = new HashSet<>();
+        AtomicReference<OffsetDateTime> currentIntervalDateTime = new AtomicReference<>();
         AtomicBoolean isCurrentRequestCorrect = new AtomicBoolean(false);
         lines.map(RequestResult::parse)
                 .filter(Objects::nonNull)
                 .peek(r -> RequestCountSingleton.getInstance().increment(r.getRuntime()))
                 .forEach(r -> {
+                    currentIntervalDateTime.set(r.getDateTime());
                     isCurrentRequestCorrect.set(isCorrect(r, maxRuntime));
                     if (!isCurrentRequestCorrect.get()) {
                         intervalCounterSingleton.addRequestResult(r);
