@@ -29,6 +29,7 @@ public class Main {
 
         AvailabilityIntervalService analyzer = new AvailabilityIntervalService(maxRuntime, minAccessLevel);
         analyzer.process(bufferedReader.lines())
+                .map(analyzer::toMessage)
                 .forEach(System.out::println);
     }
 }

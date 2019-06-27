@@ -44,4 +44,10 @@ public class AvailabilityIntervalService {
                 .filter(i -> i.getAvailabilityLevel() < minAccessLevel)
                 .sorted(Comparator.comparing(AvailabilityInterval::getStartDate));
     }
+
+    public String toMessage(AvailabilityInterval availabilityInterval) {
+        return availabilityInterval.getStartDate().toLocalTime().toString() + "\t" +
+                availabilityInterval.getEndDate().toLocalTime().toString() + "\t" +
+                availabilityInterval.getAvailabilityLevel();
+    }
 }
