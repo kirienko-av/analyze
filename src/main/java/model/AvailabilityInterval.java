@@ -3,7 +3,6 @@ package model;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
-import util.RequestCountSingleton;
 
 import java.time.OffsetDateTime;
 
@@ -11,13 +10,14 @@ import java.time.OffsetDateTime;
 public class AvailabilityInterval {
     private OffsetDateTime startDate;
     private OffsetDateTime endDate;
-    private Double runtime;
+    private Integer totalCount;
+    private Integer failureCount;
     @Setter(AccessLevel.NONE)
     private Double availabilityLevel;
 
     public Double getAvailabilityLevel() {
-        if (RequestCountSingleton.getInstance().getRuntime() > 0)
-            return (RequestCountSingleton.getInstance().getRuntime() - runtime) / RequestCountSingleton.getInstance().getRuntime() * 100;
-        return 0D;
+        if (totalCount > 0)
+            return 100D - ((failureCount * 100) / totalCount);
+        return null;
     }
 }

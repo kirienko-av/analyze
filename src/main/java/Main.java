@@ -8,7 +8,7 @@ import java.util.Optional;
 public class Main {
     public static void main(String[] args) {
         Double maxRuntime = 45D;
-        Double minAccessLevel = 99.9;
+        Double minAvailabilityLevel = 99.9;
         Options options = new Options();
         options.addOption("u", true, "Minimum acceptable level of availability.");
         options.addOption("t", true, "Acceptable response time (milliseconds).");
@@ -20,14 +20,14 @@ public class Main {
             maxRuntime = Optional.ofNullable(cmd.getOptionValue("t"))
                     .map(Double::parseDouble)
                     .orElse(maxRuntime);
-            minAccessLevel = Optional.ofNullable(cmd.getOptionValue("u"))
+            minAvailabilityLevel = Optional.ofNullable(cmd.getOptionValue("u"))
                     .map(Double::parseDouble)
-                    .orElse(minAccessLevel);
+                    .orElse(minAvailabilityLevel);
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
-        AvailabilityIntervalService analyzer = new AvailabilityIntervalService(maxRuntime, minAccessLevel);
+        AvailabilityIntervalService analyzer = new AvailabilityIntervalService(maxRuntime, minAvailabilityLevel);
         analyzer.process(bufferedReader.lines())
                 .map(analyzer::toMessage)
                 .forEach(System.out::println);
