@@ -10,8 +10,8 @@ import java.time.OffsetDateTime;
 public class AvailabilityInterval {
     private OffsetDateTime startDate;
     private OffsetDateTime endDate;
-    private Integer totalCount;
-    private Integer failureCount;
+    private Long totalCount;
+    private Long failureCount;
     @Setter(AccessLevel.NONE)
     private Double availabilityLevel;
 

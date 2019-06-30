@@ -29,25 +29,29 @@ public class AvailabilityIntervalService {
         BiFunction<Set<AvailabilityInterval>, RequestResult, Set<AvailabilityInterval>> accumulator
                 = (availabilityIntervals, requestResult) -> {
 
-            if (currentInterval.get() == null)
-                currentInterval.set(add(new AvailabilityInterval(), requestResult));
-            else {
-                if (currentInterval.get().getEndDate().equals(requestResult.getDateTime())) {
+            Optional<AvailabilityInterval> current = Optional.ofNullable(currentInterval.get());
+            Optional<AvailabilityInterval> previous = Optional.ofNullable(previousInterval.get());
+
+            if(current.isPresent()){
+                if(current
+                        .filter(i -> i.getEndDate().equals(requestResult.getDateTime()))
+                        .isPresent()){
                     currentInterval.set(add(currentInterval.get(), requestResult));
+                } else if (current
+                        .filter(i -> i.getAvailabilityLevel() < minAvailabilityLevel)
+                        .isPresent()){
+                    previousInterval.set(previous
+                            .map(i -> add(currentInterval.getAndSet(add(new AvailabilityInterval(), requestResult)), i))
+                            .orElse(currentInterval.getAndSet(add(new AvailabilityInterval(), requestResult))));
                 } else {
-                    if (currentInterval.get().getAvailabilityLevel() < minAvailabilityLevel) {
-                        if (previousInterval.get() == null)
-                            previousInterval.set(currentInterval.getAndSet(add(new AvailabilityInterval(), requestResult)));
-                        else {
-                            previousInterval.set(add(currentInterval.getAndSet(add(new AvailabilityInterval(), requestResult)), previousInterval.get()));
-                        }
-                    } else {
-                        if (previousInterval.get() != null) {
-                            availabilityIntervals.add(previousInterval.getAndSet(null));
-                            currentInterval.set(add(new AvailabilityInterval(), requestResult));
-                        }
-                    }
+                    previous
+                            .ifPresent(i -> {
+                                availabilityIntervals.add(previousInterval.getAndSet(null));
+                                currentInterval.set(add(new AvailabilityInterval(), requestResult));
+                            });
                 }
+            } else {
+                currentInterval.set(add(new AvailabilityInterval(), requestResult));
             }
             return availabilityIntervals;
         };
@@ -72,49 +76,43 @@ public class AvailabilityIntervalService {
     }
 
     private AvailabilityInterval add(AvailabilityInterval availabilityInterval, RequestResult requestResult) {
-        availabilityInterval = Optional.ofNullable(availabilityInterval)
-                .orElse(new AvailabilityInterval());
-        availabilityInterval.setStartDate(Stream.of(availabilityInterval.getStartDate(), requestResult.getDateTime())
-                .filter(Objects::nonNull)
-                .min(OffsetDateTime::compareTo)
-                .orElse(null));
-
-        availabilityInterval.setEndDate(Stream.of(availabilityInterval.getEndDate(), requestResult.getDateTime())
-                .filter(Objects::nonNull)
-                .max(OffsetDateTime::compareTo)
-                .orElse(null));
-
-        availabilityInterval.setTotalCount(Optional.ofNullable(availabilityInterval.getTotalCount())
-                .orElse(0) + 1);
-
-        availabilityInterval.setFailureCount(Optional.ofNullable(availabilityInterval.getFailureCount())
-                .orElse(0) + (isCorrect(requestResult) ? 0 : 1));
-
-        return availabilityInterval;
+        return add(availabilityInterval,
+                requestResult.getDateTime(),
+                requestResult.getDateTime(),
+                1L,
+                (isCorrect(requestResult) ? 0L : 1L));
     }
 
     private AvailabilityInterval add(AvailabilityInterval availabilityInterval1, AvailabilityInterval availabilityInterval2) {
+        return add(availabilityInterval1,
+                availabilityInterval2.getStartDate(),
+                availabilityInterval2.getEndDate(),
+                availabilityInterval2.getTotalCount(),
+                availabilityInterval2.getFailureCount());
+    }
+
+    private AvailabilityInterval add(AvailabilityInterval availabilityInterval1, OffsetDateTime startDate, OffsetDateTime endDate, Long totalCount, Long failureCount ) {
         availabilityInterval1 = Optional.ofNullable(availabilityInterval1)
                 .orElse(new AvailabilityInterval());
-        availabilityInterval1.setStartDate(Stream.of(availabilityInterval1.getStartDate(), availabilityInterval2.getStartDate())
+        availabilityInterval1.setStartDate(Stream.of(availabilityInterval1.getStartDate(), startDate)
                 .filter(Objects::nonNull)
                 .min(OffsetDateTime::compareTo)
                 .orElse(null));
 
-        availabilityInterval1.setEndDate(Stream.of(availabilityInterval1.getEndDate(), availabilityInterval2.getEndDate())
+        availabilityInterval1.setEndDate(Stream.of(availabilityInterval1.getEndDate(), endDate)
                 .filter(Objects::nonNull)
                 .max(OffsetDateTime::compareTo)
                 .orElse(null));
 
         availabilityInterval1.setTotalCount(Optional.ofNullable(availabilityInterval1.getTotalCount())
-                .orElse(0) +
-                Optional.ofNullable(availabilityInterval2.getTotalCount())
-                        .orElse(0));
+                .orElse(0L) +
+                Optional.ofNullable(totalCount)
+                        .orElse(0L));
 
         availabilityInterval1.setFailureCount(Optional.ofNullable(availabilityInterval1.getFailureCount())
-                .orElse(0) +
-                Optional.ofNullable(availabilityInterval2.getFailureCount())
-                        .orElse(0));
+                .orElse(0L) +
+                Optional.ofNullable(failureCount)
+                        .orElse(0L));
 
         return availabilityInterval1;
     }
