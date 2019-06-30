@@ -1,8 +1,10 @@
+import model.AvailabilityInterval;
 import org.apache.commons.cli.*;
 import service.AvailabilityIntervalService;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Comparator;
 import java.util.Optional;
 
 public class Main {
@@ -29,6 +31,7 @@ public class Main {
 
         AvailabilityIntervalService analyzer = new AvailabilityIntervalService(maxRuntime, minAvailabilityLevel);
         analyzer.process(bufferedReader.lines())
+                .sorted(Comparator.comparing(AvailabilityInterval::getStartDate))
                 .map(analyzer::toMessage)
                 .forEach(System.out::println);
     }
