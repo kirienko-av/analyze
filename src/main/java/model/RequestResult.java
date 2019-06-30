@@ -16,7 +16,7 @@ public class RequestResult {
     private Double runtime;
 
     public static RequestResult parse(String string) {
-        final Pattern pattern = Pattern.compile("^.+\\[(\\d{2}\\/\\d{2}\\/\\d{4}:\\d{2}:\\d{2}:\\d{2}\\s\\+\\d{4})\\].+\\\".+\\\"\\s(\\d{3})\\s\\d+\\s(\\d+\\.\\d+).+$");
+        final Pattern pattern = Pattern.compile("^.+\\[(\\d{2}\\/\\d{2}\\/\\d{4}:\\d{2}:\\d{2}:\\d{2}\\s\\+\\d{4})\\].+\\\".+\\\"\\s(\\d{3})\\s\\d+\\s(\\d+\\.?\\d+).+$");
         final Matcher matcher = pattern.matcher(string);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss Z");
 
