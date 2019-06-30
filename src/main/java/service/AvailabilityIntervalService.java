@@ -32,14 +32,14 @@ public class AvailabilityIntervalService {
             Optional<AvailabilityInterval> current = Optional.ofNullable(currentInterval.get());
             Optional<AvailabilityInterval> previous = Optional.ofNullable(previousInterval.get());
 
-            if(current.isPresent()){
-                if(current
+            if (current.isPresent()) {
+                if (current
                         .filter(i -> i.getEndDate().equals(requestResult.getDateTime()))
-                        .isPresent()){
+                        .isPresent()) {
                     currentInterval.set(add(currentInterval.get(), requestResult));
                 } else if (current
                         .filter(i -> i.getAvailabilityLevel() < minAvailabilityLevel)
-                        .isPresent()){
+                        .isPresent()) {
                     previousInterval.set(previous
                             .map(i -> add(currentInterval.getAndSet(add(new AvailabilityInterval(), requestResult)), i))
                             .orElse(currentInterval.getAndSet(add(new AvailabilityInterval(), requestResult))));
@@ -47,8 +47,8 @@ public class AvailabilityIntervalService {
                     previous
                             .ifPresent(i -> {
                                 availabilityIntervals.add(previousInterval.getAndSet(null));
-                                currentInterval.set(add(new AvailabilityInterval(), requestResult));
                             });
+                    currentInterval.set(add(new AvailabilityInterval(), requestResult));
                 }
             } else {
                 currentInterval.set(add(new AvailabilityInterval(), requestResult));
@@ -64,8 +64,7 @@ public class AvailabilityIntervalService {
                                 .orElse(new AvailabilityInterval()),
                         Optional.ofNullable(currentInterval.get())
                                 .filter(i -> i.getAvailabilityLevel() < minAvailabilityLevel)
-                                .orElse(new AvailabilityInterval()))))
-                .sorted(Comparator.comparing(AvailabilityInterval::getStartDate));
+                                .orElse(new AvailabilityInterval()))));
     }
 
     public String toMessage(AvailabilityInterval availabilityInterval) {
