@@ -91,7 +91,7 @@ public class AvailabilityIntervalService {
                 availabilityInterval2.getFailureCount());
     }
 
-    private AvailabilityInterval add(AvailabilityInterval availabilityInterval1, OffsetDateTime startDate, OffsetDateTime endDate, Long totalCount, Long failureCount ) {
+    private AvailabilityInterval add(AvailabilityInterval availabilityInterval1, OffsetDateTime startDate, OffsetDateTime endDate, Long totalCount, Long failureCount) {
         availabilityInterval1 = Optional.ofNullable(availabilityInterval1)
                 .orElse(new AvailabilityInterval());
         availabilityInterval1.setStartDate(Stream.of(availabilityInterval1.getStartDate(), startDate)

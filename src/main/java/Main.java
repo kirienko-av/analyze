@@ -35,26 +35,26 @@ public class Main {
                 .forEach(System.out::println);
     }
 
-    private static Double getOptionDoubleValue(CommandLine commandLine, String key, Double defaultValue, Double maxValue){
+    private static Double getOptionDoubleValue(CommandLine commandLine, String key, Double defaultValue, Double maxValue) {
         final Double value = defaultValue;
         String numberPattern = "^\\d+\\.?\\d+$";
         return Optional.ofNullable(commandLine.getOptionValue(key))
                 .map(String::trim)
-                .map(r -> r.matches(numberPattern)?r:null)
+                .map(r -> r.matches(numberPattern) ? r : null)
                 .map(Double::parseDouble)
                 .map(v -> {
-                    if(maxValue != null)
-                        return (v <= maxValue)?v:maxValue;
+                    if (maxValue != null)
+                        return (v <= maxValue) ? v : maxValue;
                     else
                         return v;
                 })
-                .orElseGet(() ->{
-                    System.out.println("The default value " + value +" for the " + key + " parameter  is set.");
+                .orElseGet(() -> {
+                    System.out.println("The default value " + value + " for the " + key + " parameter  is set.");
                     return value;
                 });
     }
 
-    private static Double getOptionDoubleValue(CommandLine commandLine, String key, Double defaultValue){
+    private static Double getOptionDoubleValue(CommandLine commandLine, String key, Double defaultValue) {
         return getOptionDoubleValue(commandLine, key, defaultValue, null);
     }
 }
