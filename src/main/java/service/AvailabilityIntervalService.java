@@ -64,7 +64,8 @@ public class AvailabilityIntervalService {
                                 .orElse(new AvailabilityInterval()),
                         Optional.ofNullable(currentInterval.get())
                                 .filter(i -> i.getAvailabilityLevel() < minAvailabilityLevel)
-                                .orElse(new AvailabilityInterval()))));
+                                .orElse(new AvailabilityInterval()))))
+                .filter(t -> t.getStartDate() != null);
     }
 
     public String toMessage(AvailabilityInterval availabilityInterval) {
